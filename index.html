@@ -528,7 +528,103 @@
     .radar-fetch-btn:hover:not(:disabled) { border-color: var(--gold-dim); color: var(--gold); }
     .radar-fetch-btn:disabled { opacity: .4; cursor: not-allowed; }
     #aircraft-count { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-    @media(max-width:600px) { .radar-map-wrap { height: 320px; } .aircraft-table th:nth-child(4), .aircraft-table td:nth-child(4) { display: none; } }
+    /* ── MOBILE RESPONSIVE ── */
+    @media(max-width: 600px) {
+      /* Wrap */
+      .wrap { padding: 0 10px 48px; }
+
+      /* Masthead — stack vertically */
+      .masthead { grid-template-columns: 1fr; gap: 8px; padding: 20px 0 14px; }
+      .masthead-right { text-align: left; font-size: 9px; }
+      #live-clock { font-size: 11px; }
+      .masthead-title { font-size: clamp(22px, 8vw, 36px); }
+
+      /* Status bar */
+      #status-bar { padding: 6px 10px; gap: 6px; font-size: 9px; }
+      #refresh-btn { padding: 3px 10px; font-size: 9px; }
+
+      /* Ticker */
+      .ticker { padding: 8px 10px; gap: 8px; }
+      #ticker-txt { font-size: 11px; }
+
+      /* Source pills */
+      .source-bar { gap: 5px; }
+      .spill { padding: 3px 8px; font-size: 8px; letter-spacing: 1px; }
+      .spill-bias { display: none; }
+
+      /* Stat cards — single column */
+      .stat-row { grid-template-columns: 1fr; gap: 8px; }
+      .stat-card { padding: 10px 12px; }
+      .stat-val { font-size: 16px; }
+
+      /* News feeds — single column */
+      .main-grid { grid-template-columns: 1fr; gap: 10px; }
+      .card { padding: 12px; }
+      .nhead { font-size: 13px; }
+      .nsummary { font-size: 12px; }
+
+      /* Situation card */
+      .situation-card { padding: 12px 14px; }
+      #situation-txt { font-size: 13px; }
+
+      /* Section headers */
+      .sec-hdr { margin: 16px 0 10px; }
+      .sec-hdr-lbl { font-size: 8px; letter-spacing: 2px; }
+
+      /* Radar map */
+      .radar-map-wrap { height: 280px; }
+
+      /* Aircraft detected table — hide position col, compress */
+      .aircraft-table th:nth-child(4),
+      .aircraft-table td:nth-child(4) { display: none; }
+      .aircraft-table th:nth-child(3),
+      .aircraft-table td:nth-child(3) { display: none; }
+      .aircraft-table { font-size: 10px; }
+      .aircraft-table td { padding: 7px 6px; }
+      .ac-callsign { font-size: 11px; }
+      .ac-status { font-size: 8px; padding: 1px 5px; }
+
+      /* Reference table — hide significance col on small screens */
+      #reference-table th:nth-child(4),
+      #reference-table td:nth-child(4) { display: none; }
+      #reference-table th:nth-child(3),
+      #reference-table td:nth-child(3) { font-size: 10px; }
+      #reference-table { font-size: 10px; }
+      #reference-table td { padding: 7px 6px; }
+
+      /* Radar controls */
+      .radar-fetch-btn { font-size: 9px; padding: 4px 10px; }
+      #aircraft-count { font-size: 9px; }
+
+      /* Timeline */
+      .tl-event { font-size: 12px; }
+      .tl-date { font-size: 9px; }
+
+      /* Sources panel pills */
+      #sources-panel { gap: 6px; }
+      #sources-panel .spill { font-size: 9px; padding: 4px 8px; }
+
+      /* Footer */
+      .footer { flex-direction: column; gap: 6px; }
+      .footer-note { font-size: 9px; }
+      .footer-note:last-child { text-align: left; }
+
+      /* Splash */
+      .splash-box { padding: 24px 18px; }
+      .splash-title { font-size: 24px; }
+      .splash-sub { font-size: 12px; }
+      .key-input { font-size: 12px; padding: 9px 11px; }
+    }
+
+    /* ── SMALL TABLET ── */
+    @media(min-width: 601px) and (max-width: 750px) {
+      .stat-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-row .stat-card:last-child { grid-column: 1 / -1; }
+      .aircraft-table th:nth-child(4),
+      .aircraft-table td:nth-child(4) { display: none; }
+      .masthead { grid-template-columns: 1fr; }
+      .masthead-right { text-align: left; }
+    }
   </style>
 </head>
 <body>
@@ -1183,10 +1279,11 @@ async function fetchAircraft() {
     countEl.textContent = military.length + ' MILITARY DETECTED';
 
     if (military.length === 0) {
-      wrap.innerHTML = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:10px 0">
-        No known military callsigns detected in region right now with transponders on.<br/>
-        This is normal — many military aircraft fly with transponders off (ADSB silent).<br/>
-        Check the live map above for unidentified contacts.
+      wrap.innerHTML = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:10px 0;line-height:2">
+        ◦ NO KNOWN MILITARY CALLSIGNS DETECTED WITH TRANSPONDERS ON<br/>
+        ◦ This is expected — most strike aircraft, bombers &amp; drones fly DARK (transponders off)<br/>
+        ◦ Transport &amp; logistics flights (C-17, KC-135) are most likely to appear as they fly civilian airspace<br/>
+        ◦ Check the live ADS-B map above for all contacts including unidentified aircraft
       </div>`;
     } else {
       const rows = military.map(ac => `
