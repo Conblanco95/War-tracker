@@ -872,10 +872,16 @@ function pillClass(outlet) {
 // Strip <cite index="...">...</cite> tags that Sonnet injects — keep inner text only
 function stripCite(str) {
   if (!str) return str;
-  return String(str)
-    .replace(/<cite[^>]*>([\s\S]*?)<\/cite>/gi, '$1')
-    .replace(/<\/?cite[^>]*>/gi, '')
-    .trim();
+  let s = String(str);
+  // Remove <cite index="...">...</cite> tags, keep inner text
+  let prev = '';
+  while (prev !== s) {
+    prev = s;
+    s = s.replace(/<cite[^>]*>([^<]*)<\/cite>/gi, '$1');
+  }
+  // Remove any remaining lone cite tags
+  s = s.replace(/<\/?cite[^>]*>/gi, '');
+  return s.trim();
 }
 // Strip cite from every field in an object recursively
 function cleanObj(obj) {
@@ -1125,7 +1131,6 @@ async function fetchAircraft() {
   const btn = document.getElementById('radar-fetch-btn');
   const countEl = document.getElementById('aircraft-count');
   const wrap = document.getElementById('aircraft-table-wrap');
-  const assessBtn = document.getElementById('radar-assess-btn');
 
   if (!API_KEY) {
     wrap.innerHTML = '<div style="font-family:var(--font-mono);font-size:11px;color:#e07070;padding:10px 0">⚠ Enter your API key above first, then scan.</div>';
@@ -1199,7 +1204,6 @@ async function fetchAircraft() {
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
-      assessBtn.disabled = false;
     }
 
   } catch(err) {
