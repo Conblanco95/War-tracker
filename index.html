@@ -869,6 +869,27 @@ function pillClass(outlet) {
   return 'spill sp-reuters';
 }
 
+// Strip <cite index="...">...</cite> tags that Sonnet injects — keep inner text only
+function stripCite(str) {
+  if (!str) return str;
+  return String(str)
+    .replace(/<cite[^>]*>([\s\S]*?)<\/cite>/gi, '$1')
+    .replace(/<\/?cite[^>]*>/gi, '')
+    .trim();
+}
+// Strip cite from every field in an object recursively
+function cleanObj(obj) {
+  if (!obj) return obj;
+  if (typeof obj === 'string') return stripCite(obj);
+  if (Array.isArray(obj)) return obj.map(cleanObj);
+  if (typeof obj === 'object') {
+    const out = {};
+    for (const k in obj) out[k] = cleanObj(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
 function buildFeed(items, elId) {
   const el = document.getElementById(elId);
   if (!el || !items?.length) return;
@@ -911,7 +932,7 @@ function buildTimeline(items) {
 function render(d) {
   console.log('render() called | military:', d.military?.length, '| political:', d.political?.length, '| timeline:', d.timeline?.length);
 
-  if (d.tickerItems?.length) runTicker(d.tickerItems);
+  if (d.tickerItems?.length) runTicker(d.tickerItems.map(stripCite));
   else runTicker([d.headline || 'USA/Israel–Iran conflict · Operation Epic Fury · Live feed active']);
 
   const setTxt = (id, val) => { const el=document.getElementById(id); if(el&&val) el.textContent=val; };
@@ -1021,7 +1042,7 @@ Minimums: 4 tickerItems, 4 military items, 4 political items, 4 sources, 6 timel
     if (!parsed) throw new Error('No valid JSON found in response — check console for raw text.');
 
     await setStep(3);
-    render(parsed);
+    render(cleanObj(parsed));
 
   } catch(err) {
     console.error('fetchIntel error:', err);
